@@ -104,10 +104,20 @@ public function download(User $user)
 `response()->vcard()` (also available as `Response::vcard()`) accepts a `Dunn\VCard\VCard`
 instance or a pre-built vCard string, and an optional filename that defaults to
 `contact.vcf`. The response is sent as `text/vcard` with an `attachment`
-`Content-Disposition` header. The filename is made safe for that header: quotes are
-escaped, path separators and control characters are replaced with `_`, non-ASCII
-names get an ASCII fallback plus an RFC 6266 `filename*` parameter, and an empty
-name falls back to `contact.vcf`.
+`Content-Disposition` header. The filename is made safe for that header:
+
+- quotes are escaped, and path separators and control characters are replaced with `_`;
+- surrounding whitespace is trimmed;
+- non-ASCII names get a transliterated ASCII fallback plus an RFC 6266 `filename*`
+  parameter carrying the original name;
+- `%` is dropped from the ASCII fallback, so names containing `%` also get a
+  `filename*` parameter (`100%.vcf` is sent as `filename="100.vcf"` plus
+  `filename*=utf-8''100%25.vcf`);
+- the ASCII fallback becomes `contact.vcf` when the part before the extension has no
+  letter or digit (`_.vcf`, `.vcf`, `📇.vcf`), with the original name kept in
+  `filename*`;
+- empty or whitespace-only names, and names that are not valid UTF-8, fall back to
+  `contact.vcf`.
 
 ---
 

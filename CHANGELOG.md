@@ -16,12 +16,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **Behaviour change:** separate statements such as `VCard::addName(...);` followed by
   `VCard::build();` no longer share one card; build each card in a single chain or keep
   the instance from `VCard::make()` in a variable.
-- `response()->vcard()` now builds a valid `Content-Disposition` header: quotes and
-  backslashes no longer break the quoted filename, `/`, `\` and control characters
-  (including CR/LF) are replaced with `_`, non-ASCII filenames get an ASCII fallback plus
-  an RFC 6266 `filename*` parameter, and an empty filename falls back to `contact.vcf`.
-  **Behaviour change:** the header differs from before for filenames containing these
-  characters; plain ASCII filenames produce the same header as before.
+- `response()->vcard()` now builds a valid `Content-Disposition` header:
+  - quotes no longer break the quoted filename (they are escaped);
+  - `/`, `\` and control characters (including CR/LF) are replaced with `_`;
+  - surrounding whitespace is trimmed;
+  - non-ASCII filenames get a transliterated ASCII fallback plus an RFC 6266
+    `filename*` parameter carrying the original name;
+  - `%` is dropped from the ASCII fallback (some clients percent-decode it), so names
+    containing `%` also get a `filename*` parameter with the original name;
+  - the ASCII fallback becomes `contact.vcf` when the part before the extension has no
+    letter or digit (for example `_.vcf` or `.vcf`); the original name is still sent
+    in `filename*`;
+  - empty or whitespace-only filenames, and filenames that are not valid UTF-8, fall
+    back to `contact.vcf`.
+
+  **Behaviour change:** the header differs from before for every filename covered by
+  the rules above. Other filenames, such as `jane.vcf` or `Jane Doe.vcf`, produce the
+  same header as before.
 - The facade `@method` docblock now matches `abduns/vcard` 1.1: `make()` defaults to
   `'4.0'`, `addPhoto()`, `addLogo()`, `addSound()` and `addKey()` take `$uriOrBase64`
   (named arguments that followed the old docblock failed at runtime), and the documented
