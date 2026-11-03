@@ -61,6 +61,10 @@ it('builds a safe Content-Disposition header', function (string $filename, strin
     ],
     'percent sign' => ['100%.vcf', "attachment; filename=\"100.vcf\"; filename*=utf-8''100%25.vcf"],
     'non-transliterable' => ['📇.vcf', "attachment; filename=\"contact.vcf\"; filename*=utf-8''%F0%9F%93%87.vcf"],
+    'no letter or digit in the name' => ['_.vcf', "attachment; filename=\"contact.vcf\"; filename*=utf-8''_.vcf"],
+    'extension only' => ['.vcf', "attachment; filename=\"contact.vcf\"; filename*=utf-8''.vcf"],
+    'surrounding whitespace' => [' jane.vcf ', 'attachment; filename="jane.vcf"'],
+    'invalid UTF-8' => ["\xFF\xFE.vcf", 'attachment; filename="contact.vcf"'],
     'empty string' => ['', 'attachment; filename="contact.vcf"'],
     'whitespace only' => ['   ', 'attachment; filename="contact.vcf"'],
 ]);
