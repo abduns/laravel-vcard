@@ -2,7 +2,7 @@
 
 Laravel bridge for the abduns/vcard generator.
 
-[![CI](https://github.com/abduns/laravel-vcard/actions/workflows/ci.yml/badge.svg)](https://github.com/abduns/laravel-vcard/actions/workflows/ci.yml)
+[![CI](https://github.com/abduns/laravel-vcard/actions/workflows/tests.yml/badge.svg)](https://github.com/abduns/laravel-vcard/actions/workflows/tests.yml)
 [![Version](https://img.shields.io/packagist/v/abduns/laravel-vcard.svg)](https://packagist.org/packages/abduns/laravel-vcard)
 [![Downloads](https://img.shields.io/packagist/dt/abduns/laravel-vcard.svg)](https://packagist.org/packages/abduns/laravel-vcard)
 [![License](https://img.shields.io/packagist/l/abduns/laravel-vcard.svg)](LICENSE.md)
