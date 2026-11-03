@@ -71,6 +71,21 @@ $vcf = VCard::make()
     ->build();
 ```
 
+Output defaults to **vCard 4.0** (RFC 6350). Pass the version to `make()` to generate vCard 3.0 instead:
+
+```php
+$vcf = VCard::make('3.0')
+    ->addName('Doe', 'John')
+    ->build();
+```
+
+`VCard::make()` is the recommended entry point. Every call through the facade
+(including `VCard::addName(...)`) resolves a fresh, empty card from the container,
+so building several cards in a loop, a queue worker or an Artisan command never
+mixes data from one contact into another. A chain must therefore start and end in
+one expression (or be kept in a variable): separate `VCard::addX()` statements do
+not add to a shared card.
+
 ### Advanced Usage
 
 ```php
@@ -85,6 +100,14 @@ public function download(User $user)
     return response()->vcard($vcard, "{$user->slug}.vcf");
 }
 ```
+
+`response()->vcard()` (also available as `Response::vcard()`) accepts a `Dunn\VCard\VCard`
+instance or a pre-built vCard string, and an optional filename that defaults to
+`contact.vcf`. The response is sent as `text/vcard` with an `attachment`
+`Content-Disposition` header. The filename is made safe for that header: quotes are
+escaped, path separators and control characters are replaced with `_`, non-ASCII
+names get an ASCII fallback plus an RFC 6266 `filename*` parameter, and an empty
+name falls back to `contact.vcf`.
 
 ---
 
@@ -114,10 +137,12 @@ References:
 
 ## Compatibility
 
-| Platform | Supported |
+| Laravel | PHP |
 |---|---|
-| PHP 8.2+ | ✅ |
-| Laravel 12.0+ | ✅ |
+| 12.x | 8.2, 8.3, 8.4, 8.5 |
+| 13.x | 8.3, 8.4, 8.5 |
+
+Requires `abduns/vcard` ^1.1.
 
 ---
 
@@ -150,7 +175,10 @@ References:
 ## Testing
 
 ```bash
-composer test
+composer test   # Pest
+composer stan   # PHPStan + Larastan
+composer lint   # php-cs-fixer (dry run); `composer fix` applies the fixes
+composer ci     # all of the above
 ```
 
 ---
@@ -171,7 +199,14 @@ Contributions, issues, and discussions are welcome.
 
 ## Security
 
-If you discover security issues, please report them responsibly.
+If you discover a security issue, please email [werk@abduns.com](mailto:werk@abduns.com)
+instead of opening a public issue. See [SECURITY.md](SECURITY.md) for details.
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for what has changed recently.
 
 ---
 
