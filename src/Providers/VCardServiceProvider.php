@@ -1,18 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Dunn\VCard\Laravel\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Routing\ResponseFactory;
 use Dunn\VCard\VCard;
+use Illuminate\Routing\ResponseFactory;
+use Illuminate\Support\ServiceProvider;
 
 class VCardServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind('vcard', function ($app) {
-            return new VCard();
-        });
+        $this->app->bind('vcard', fn ($app) => new VCard());
     }
 
     public function boot(): void
