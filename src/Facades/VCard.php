@@ -7,7 +7,13 @@ namespace Dunn\VCard\Laravel\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static \Dunn\VCard\VCard make(string $version = '3.0')
+ * Every static call resolves a brand-new Dunn\VCard\VCard from the container,
+ * so each chain (VCard::make()->...->build() or VCard::addName(...)->...->build())
+ * starts from an empty card and never sees data from a previous one.
+ * VCard::make() is the recommended entry point; it defaults to vCard 4.0 and
+ * VCard::make('3.0') selects vCard 3.0.
+ *
+ * @method static \Dunn\VCard\VCard make(string $version = '4.0')
  *
  * General Properties
  * @method static \Dunn\VCard\VCard addSource(string $uri)
@@ -18,7 +24,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Dunn\VCard\VCard addFormattedName(string $formattedName)
  * @method static \Dunn\VCard\VCard addName(string $lastName, string $firstName, string $additional = '', string $prefix = '', string $suffix = '')
  * @method static \Dunn\VCard\VCard addNickname(string ...$nicknames)
- * @method static \Dunn\VCard\VCard addPhoto(string $urlOrBase64, string $mediaType = 'JPEG')
+ * @method static \Dunn\VCard\VCard addPhoto(string $uriOrBase64, string $mediaType = 'image/jpeg')
  * @method static \Dunn\VCard\VCard addBirthday(string $date)
  * @method static \Dunn\VCard\VCard addAnniversary(string $date)
  * @method static \Dunn\VCard\VCard addGender(string $sex, string $identity = '')
@@ -30,8 +36,8 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Dunn\VCard\VCard addAddress(string $poBox, string $extended, string $street, string $city, string $region, string $zip, string $country, string $type = 'WORK')
  *
  * Communications Properties
- * @method static \Dunn\VCard\VCard addPhoneNumber(string $number, string $type = 'CELL')
- * @method static \Dunn\VCard\VCard addEmail(string $email, string $type = 'INTERNET')
+ * @method static \Dunn\VCard\VCard addPhoneNumber(string $number, string $type = 'cell')
+ * @method static \Dunn\VCard\VCard addEmail(string $email, string $type = 'work')
  * @method static \Dunn\VCard\VCard addImpp(string $uri, string $type = '')
  * @method static \Dunn\VCard\VCard addLang(string $languageTag, string $type = '')
  * @method static \Dunn\VCard\VCard addSocialProfile(string $uri, string $service = '')
@@ -44,7 +50,7 @@ use Illuminate\Support\Facades\Facade;
  * Organizational Properties
  * @method static \Dunn\VCard\VCard addJobTitle(string $jobTitle)
  * @method static \Dunn\VCard\VCard addRole(string $role)
- * @method static \Dunn\VCard\VCard addLogo(string $urlOrBase64, string $mediaType = 'JPEG')
+ * @method static \Dunn\VCard\VCard addLogo(string $uriOrBase64, string $mediaType = 'image/jpeg')
  * @method static \Dunn\VCard\VCard addCompany(string $organization, string ...$units)
  * @method static \Dunn\VCard\VCard addMember(string $uri)
  * @method static \Dunn\VCard\VCard addRelated(string $uri, string $type = '')
@@ -54,14 +60,14 @@ use Illuminate\Support\Facades\Facade;
  * @method static \Dunn\VCard\VCard addCategories(string ...$categories)
  * @method static \Dunn\VCard\VCard addNote(string $note)
  * @method static \Dunn\VCard\VCard addProdid(string $prodid)
- * @method static \Dunn\VCard\VCard addSound(string $urlOrBase64, string $mediaType = 'OGG')
+ * @method static \Dunn\VCard\VCard addSound(string $uriOrBase64, string $mediaType = 'audio/ogg')
  * @method static \Dunn\VCard\VCard addUid(string $uid)
  * @method static \Dunn\VCard\VCard addClientpidmap(int $pid, string $uri)
- * @method static \Dunn\VCard\VCard addUrl(string $url, string $type = 'WORK')
+ * @method static \Dunn\VCard\VCard addUrl(string $url, string $type = 'work')
  * @method static \Dunn\VCard\VCard addCreated(string $timestamp)
  *
  * Security Properties
- * @method static \Dunn\VCard\VCard addKey(string $key, string $mediaType = 'application/pgp-keys')
+ * @method static \Dunn\VCard\VCard addKey(string $uriOrBase64, string $mediaType = 'application/pgp-keys')
  *
  * Calendar Properties
  * @method static \Dunn\VCard\VCard addFburl(string $uri, string $type = '')
@@ -91,6 +97,14 @@ use Illuminate\Support\Facades\Facade;
  */
 class VCard extends Facade
 {
+    /**
+     * Do not cache the resolved root: the underlying VCard is a mutable builder,
+     * and a cached instance would leak properties from one card into the next.
+     *
+     * @var bool
+     */
+    protected static $cached = false;
+
     protected static function getFacadeAccessor(): string
     {
         return 'vcard';
